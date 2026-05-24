@@ -1,3 +1,4 @@
+/* Variables de color reutilizables para mantener una identidad visual consistente. */
 :root {
   --ink: #172026;
   --muted: #65717a;
@@ -9,6 +10,7 @@
   --gold: #b38728;
 }
 
+/* Normalizacion basica para que medidas y formularios sean predecibles. */
 * { box-sizing: border-box; }
 
 body {
@@ -19,6 +21,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Estilos base de controles: botones, inputs y selects usados en todos los modulos. */
 button, input, select { font: inherit; }
 
 button {
@@ -50,8 +53,10 @@ input, select {
   color: var(--ink);
 }
 
+/* Utilidad para ocultar/mostrar pantallas desde JavaScript. */
 .hidden { display: none !important; }
 
+/* Pantalla de login centrada en la ventana. */
 .login-panel {
   min-height: 100vh;
   display: grid;
@@ -59,6 +64,7 @@ input, select {
   padding: 24px;
 }
 
+/* Caja visual del formulario de login. */
 .login-box {
   width: min(420px, 100%);
   background: var(--panel);
@@ -78,6 +84,7 @@ input, select {
   font-size: 14px;
 }
 
+/* Texto pequeno de contexto usado en login, menu y usuario activo. */
 .eyebrow {
   margin: 0 0 6px;
   color: var(--teal);
@@ -87,6 +94,7 @@ input, select {
   text-transform: uppercase;
 }
 
+/* Mensajes de estado: errores en rojo y exitos en verde/teal. */
 .message {
   min-height: 22px;
   color: var(--coral);
@@ -101,12 +109,14 @@ input, select {
   color: var(--coral);
 }
 
+/* Layout general despues del login: menu lateral + contenido principal. */
 .app-panel {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 240px 1fr;
 }
 
+/* Menu lateral de navegacion. */
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -134,11 +144,13 @@ input, select {
   color: #075b64;
 }
 
+/* Contenedor principal de cada vista. */
 .content {
   min-width: 0;
   padding: 24px;
 }
 
+/* Barra superior de la app con titulo de vista y boton actualizar. */
 .topbar {
   display: flex;
   align-items: center;
@@ -147,9 +159,11 @@ input, select {
   margin-bottom: 22px;
 }
 
+/* Sistema de vistas: solo una seccion esta visible a la vez. */
 .view { display: none; }
 .view.active { display: block; }
 
+/* Tarjetas de indicadores del dashboard. */
 .metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(140px, 1fr));
@@ -176,6 +190,7 @@ input, select {
   font-size: 30px;
 }
 
+/* Contenedores de graficos del dashboard. */
 .charts {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
@@ -190,6 +205,7 @@ canvas {
   height: 260px;
 }
 
+/* Formularios de carga/edicion de datos. */
 .data-form {
   display: grid;
   grid-template-columns: repeat(5, minmax(120px, 1fr));
@@ -197,11 +213,13 @@ canvas {
   margin-bottom: 16px;
 }
 
+/* Campo de busqueda local para filtrar filas ya cargadas en pantalla. */
 .table-filter {
   max-width: 360px;
   margin-bottom: 12px;
 }
 
+/* Tablas con scroll horizontal para no romper pantallas pequenas. */
 .table-wrap {
   overflow: auto;
   background: var(--panel);
@@ -233,6 +251,7 @@ td:last-child, th:last-child {
   text-align: right;
 }
 
+/* Acciones del modulo de reportes. */
 .report-actions {
   display: flex;
   gap: 10px;
@@ -242,12 +261,14 @@ td:last-child, th:last-child {
 .report-preview { overflow: auto; }
 .report-preview h3 { margin-top: 0; }
 
+/* Modo impresion: deja visible solo el contenido del reporte. */
 @media print {
   .sidebar, .topbar, .report-actions, .message { display: none; }
   .app-panel { display: block; }
   .content { padding: 0; }
 }
 
+/* Adaptacion responsive para tablets y celulares. */
 @media (max-width: 860px) {
   .app-panel { grid-template-columns: 1fr; }
   .sidebar {

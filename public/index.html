@@ -8,6 +8,7 @@
 </head>
 <body>
   <main class="shell">
+    <!-- Pantalla inicial: formulario de autenticacion contra la base de datos. -->
     <section id="loginPanel" class="login-panel">
       <form id="loginForm" class="login-box">
         <p class="eyebrow">Programacion 2</p>
@@ -19,7 +20,9 @@
       </form>
     </section>
 
+    <!-- Contenedor principal de la aplicacion. Se muestra solo despues del login. -->
     <section id="appPanel" class="app-panel hidden">
+      <!-- Menu lateral: permite navegar entre las vistas sin recargar la pagina. -->
       <aside class="sidebar">
         <div>
           <p class="eyebrow">PRG2</p>
@@ -35,7 +38,9 @@
         <button id="logoutBtn" class="secondary">Salir</button>
       </aside>
 
+      <!-- Area de trabajo: aqui se renderizan dashboard, formularios, tablas y reportes. -->
       <section class="content">
+        <!-- Barra superior con usuario activo y accion para refrescar datos desde Oracle. -->
         <header class="topbar">
           <div>
             <p id="userName" class="eyebrow"></p>
@@ -44,6 +49,7 @@
           <button id="refreshBtn" class="secondary">Actualizar</button>
         </header>
 
+        <!-- Dashboard: metricas y graficos alimentados por /api/resumen. -->
         <section id="dashboard" class="view active">
           <div class="metrics">
             <article><span>Alumnos</span><strong id="metricAlumnos">0</strong></article>
@@ -63,6 +69,7 @@
           </div>
         </section>
 
+        <!-- Vista de alumnos: filtro, formulario CRUD y tabla de resultados. -->
         <section id="alumnos" class="view">
           <input class="table-filter" data-filter-target="alumnosTable" placeholder="Filtrar alumnos">
           <form id="alumnoForm" class="data-form">
@@ -81,6 +88,7 @@
           </div>
         </section>
 
+        <!-- Vista de materias: registra y lista las materias disponibles. -->
         <section id="materias" class="view">
           <input class="table-filter" data-filter-target="materiasTable" placeholder="Filtrar materias">
           <form id="materiaForm" class="data-form">
@@ -97,6 +105,7 @@
           </div>
         </section>
 
+        <!-- Vista de inscripciones: relaciona alumnos con materias y registra estado/nota. -->
         <section id="inscripciones" class="view">
           <input class="table-filter" data-filter-target="inscripcionesTable" placeholder="Filtrar inscripciones">
           <form id="inscripcionForm" class="data-form">
@@ -118,6 +127,7 @@
           </div>
         </section>
 
+        <!-- Vista de reportes: permite imprimir o descargar datos reales en CSV. -->
         <section id="reportes" class="view">
           <div class="report-actions">
             <button id="downloadCsv">Descargar CSV</button>
@@ -126,10 +136,12 @@
           <div id="reportPreview" class="report-preview"></div>
         </section>
 
+        <!-- Mensajes generales de exito/error para acciones realizadas en la app. -->
         <p id="appMessage" class="message" role="status"></p>
       </section>
     </section>
   </main>
+  <!-- Logica del frontend: login, fetch a la API, renderizado y graficos. -->
   <script src="app.js"></script>
 </body>
 </html>

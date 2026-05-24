@@ -1,3 +1,4 @@
+// Estado global del frontend. Guarda sesion y datos cargados desde la API.
 const state = {
   token: localStorage.getItem('prg2_token'),
   user: JSON.parse(localStorage.getItem('prg2_user') || 'null'),
@@ -6,10 +7,12 @@ const state = {
   inscripciones: []
 };
 
+// Atajos para consultar elementos del DOM de forma mas breve.
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 let messageTimer;
 
+// Muestra mensajes de exito o error en la pantalla.
 function showMessage(text, target = '#appMessage', type = 'error') {
   const element = $(target);
   element.textContent = text || '';
@@ -27,6 +30,7 @@ function showMessage(text, target = '#appMessage', type = 'error') {
   }
 }
 
+// Cliente HTTP centralizado. Todas las llamadas al backend pasan por aqui.
 async function api(path, options = {}) {
   const response = await fetch(path, {
     ...options,
@@ -45,6 +49,7 @@ async function api(path, options = {}) {
   return response.status === 204 ? null : response.json();
 }
 
+// Guarda el token recibido del login y muestra la aplicacion principal.
 function setAuthenticated(user, token) {
   state.user = user;
   state.token = token;
@@ -55,6 +60,7 @@ function setAuthenticated(user, token) {
   $('#userName').textContent = user.nombre;
 }
 
+// Limpia la sesion local y vuelve a la pantalla de login.
 function logout() {
   state.token = null;
   state.user = null;
@@ -65,14 +71,17 @@ function logout() {
   showMessage('', '#loginMessage');
 }
 
+// Encapsula confirmaciones para acciones destructivas.
 function confirmAction(message) {
   return window.confirm(message);
 }
 
+// Genera botones de accion para las tablas.
 function action(label, className, attrs = '') {
   return `<button class="${className}" ${attrs}>${label}</button>`;
 }
 
+// Renderiza la tabla de alumnos y llena el select usado en inscripciones.
 function renderAlumnos() {
   $('#alumnosTable').innerHTML = state.alumnos.map((alumno) => `
     <tr>
@@ -91,6 +100,7 @@ function renderAlumnos() {
     state.alumnos.map((alumno) => `<option value="${alumno.ID}">${alumno.NOMBRE}</option>`).join('');
 }
 
+// Renderiza la tabla de materias y llena el select usado en inscripciones.
 function renderMaterias() {
   $('#materiasTable').innerHTML = state.materias.map((materia) => `
     <tr>
@@ -105,6 +115,7 @@ function renderMaterias() {
     state.materias.map((materia) => `<option value="${materia.ID}">${materia.NOMBRE}</option>`).join('');
 }
 
+// Renderiza la tabla de inscripciones y arma la vista previa del reporte.
 function renderInscripciones() {
   $('#inscripcionesTable').innerHTML = state.inscripciones.map((item) => `
     <tr>
@@ -130,6 +141,7 @@ function renderInscripciones() {
   `;
 }
 
+// Grafico de barras en Canvas: muestra cantidades por materia.
 function drawBarChart(canvas, rows, labelKey, valueKey, color) {
   const ctx = canvas.getContext('2d');
   const width = canvas.width;
@@ -164,6 +176,7 @@ function drawBarChart(canvas, rows, labelKey, valueKey, color) {
   }
 }
 
+// Grafico tipo dona en Canvas: muestra distribucion por estado.
 function drawDonutChart(canvas, rows) {
   const ctx = canvas.getContext('2d');
   const total = rows.reduce((sum, row) => sum + Number(row.CANTIDAD || 0), 0);
@@ -205,6 +218,7 @@ function drawDonutChart(canvas, rows) {
   });
 }
 
+// Carga en paralelo todos los datos necesarios para refrescar la pantalla.
 async function loadAll() {
   showMessage('');
   const [resumen, alumnos, materias, inscripciones] = await Promise.all([
@@ -230,6 +244,7 @@ async function loadAll() {
   drawDonutChart($('#estadoChart'), resumen.byEstado);
 }
 
+// Cambia entre vistas usando los botones del menu lateral.
 function bindNavigation() {
   $$('.nav-link').forEach((button) => {
     button.addEventListener('click', () => {
@@ -242,10 +257,12 @@ function bindNavigation() {
   });
 }
 
+// Convierte los campos de un formulario HTML en un objeto JavaScript.
 function formData(form) {
   return Object.fromEntries(new FormData(form).entries());
 }
 
+// Registra los eventos submit de login y formularios CRUD.
 function bindForms() {
   $('#loginForm').addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -304,10 +321,12 @@ function bindForms() {
   });
 }
 
+// Registra acciones de botones: editar, eliminar, actualizar, reportes y filtros.
 function bindActions() {
   document.body.addEventListener('click', async (event) => {
     const target = event.target;
 
+    // Carga los datos de un alumno en el formulario para editarlo.
     if (target.matches('[data-edit-alumno]')) {
       const alumno = state.alumnos.find((item) => item.ID === Number(target.dataset.editAlumno));
       const form = $('#alumnoForm');
@@ -319,6 +338,7 @@ function bindActions() {
       showMessage('Editando alumno. Guarda los cambios para confirmar.', '#appMessage', 'success');
     }
 
+    // Elimina un alumno despues de confirmar la accion.
     if (target.matches('[data-delete-alumno]')) {
       if (!confirmAction('Deseas eliminar este alumno? Tambien se eliminaran sus inscripciones.')) {
         return;
@@ -332,6 +352,7 @@ function bindActions() {
       }
     }
 
+    // Elimina una materia despues de confirmar la accion.
     if (target.matches('[data-delete-materia]')) {
       if (!confirmAction('Deseas eliminar esta materia? Tambien se eliminaran sus inscripciones.')) {
         return;
@@ -345,6 +366,7 @@ function bindActions() {
       }
     }
 
+    // Elimina una inscripcion despues de confirmar la accion.
     if (target.matches('[data-delete-inscripcion]')) {
       if (!confirmAction('Deseas eliminar esta inscripcion?')) {
         return;
@@ -359,6 +381,7 @@ function bindActions() {
     }
   });
 
+  // Botones generales de la aplicacion.
   $('#refreshBtn').addEventListener('click', () => loadAll()
     .then(() => showMessage('Datos actualizados.', '#appMessage', 'success'))
     .catch((err) => showMessage(err.message)));
@@ -371,6 +394,7 @@ function bindActions() {
     window.location.href = `/api/reportes/inscripciones.csv?token=${encodeURIComponent(state.token)}`;
   });
 
+  // Filtros de tabla: ocultan filas que no contienen el texto buscado.
   $$('.table-filter').forEach((input) => {
     input.addEventListener('input', () => {
       const term = input.value.trim().toLowerCase();
@@ -382,6 +406,7 @@ function bindActions() {
   });
 }
 
+// Punto de entrada del frontend: registra eventos y restaura sesion si existe.
 async function boot() {
   bindNavigation();
   bindForms();
