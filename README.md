@@ -2,6 +2,16 @@
 
 Aplicacion web academica para Programacion 2 con HTML5, CSS, JavaScript, Node.js, Express, Oracle XE, API REST, reportes CSV y graficos dinamicos en Canvas.
 
+## Funcionalidades
+
+- Login contra Oracle XE con clave hasheada.
+- Dashboard con metricas y graficos dinamicos.
+- CRUD completo de alumnos.
+- Gestion de materias e inscripciones.
+- Tablas con filtros.
+- Reporte imprimible y descarga CSV.
+- API REST protegida con token.
+
 ## Requisitos
 
 - Node.js
@@ -27,7 +37,7 @@ $env:ORACLE_CONNECT_STRING="localhost:1521/XEPDB1"
 
 ```powershell
 cd js
-npm start
+npm run dev
 ```
 
 Abrir `http://localhost:3000`.
@@ -35,7 +45,7 @@ Abrir `http://localhost:3000`.
 Si PowerShell bloquea `npm.ps1`, ejecutar con:
 
 ```powershell
-cmd /c npm start
+cmd /c npm run dev
 ```
 
 Usuario inicial:
@@ -43,12 +53,26 @@ Usuario inicial:
 - Usuario: `admin`
 - Contrasena: `admin123`
 
-## Modulos incluidos
+## Scripts
 
-- Login con clave hasheada.
-- CRUD de alumnos.
-- CRUD de materias.
-- Registro de inscripciones.
-- Dashboard con metricas y graficos dinamicos.
-- Reporte imprimible y descarga CSV.
-- API REST protegida con token.
+Desde la carpeta `js`:
+
+```powershell
+npm run dev
+npm start
+npm run check
+```
+
+## Documentacion
+
+- [Cumplimiento de requisitos](DOCs/cumplimiento-requisitos.md)
+- [Guia de migracion a la universidad](DOCs/guia-migracion-universidad.md)
+- [Script de usuario Oracle](DOCs/create-user.sql)
+- [Script de tablas y datos](DOCs/schema.sql)
+
+## Errores comunes
+
+- `ORA-01017`: revisar usuario, contrasena y servicio Oracle en `js/db.js`.
+- `ORA-00942`: ejecutar `DOCs/schema.sql` conectado como `PRG2_APP`.
+- `npm.ps1 bloqueado`: usar `cmd /c npm run dev`.
+- Puerto ocupado: ejecutar con otra variable, por ejemplo `$env:PORT="3001"`.

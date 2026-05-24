@@ -8,9 +8,23 @@ const state = {
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
+let messageTimer;
 
-function showMessage(text, target = '#appMessage') {
-  $(target).textContent = text || '';
+function showMessage(text, target = '#appMessage', type = 'error') {
+  const element = $(target);
+  element.textContent = text || '';
+  element.classList.remove('success', 'error');
+
+  if (text) {
+    element.classList.add(type);
+  }
+
+  if (target === '#appMessage') {
+    clearTimeout(messageTimer);
+    if (text && type === 'success') {
+      messageTimer = setTimeout(() => showMessage(''), 3500);
+    }
+  }
 }
 
 async function api(path, options = {}) {
@@ -48,6 +62,11 @@ function logout() {
   localStorage.removeItem('prg2_user');
   $('#appPanel').classList.add('hidden');
   $('#loginPanel').classList.remove('hidden');
+  showMessage('', '#loginMessage');
+}
+
+function confirmAction(message) {
+  return window.confirm(message);
 }
 
 function action(label, className, attrs = '') {
@@ -238,6 +257,7 @@ function bindForms() {
       });
       setAuthenticated(result.user, result.token);
       await loadAll();
+      showMessage(`Bienvenido, ${result.user.nombre}`, '#appMessage', 'success');
     } catch (err) {
       showMessage(err.message, '#loginMessage');
     }
@@ -245,26 +265,42 @@ function bindForms() {
 
   $('#alumnoForm').addEventListener('submit', async (event) => {
     event.preventDefault();
-    const data = formData(event.currentTarget);
-    const method = data.id ? 'PUT' : 'POST';
-    const url = data.id ? `/api/alumnos/${data.id}` : '/api/alumnos';
-    await api(url, { method, body: JSON.stringify(data) });
-    event.currentTarget.reset();
-    await loadAll();
+    try {
+      const data = formData(event.currentTarget);
+      const isEditing = Boolean(data.id);
+      const method = isEditing ? 'PUT' : 'POST';
+      const url = isEditing ? `/api/alumnos/${data.id}` : '/api/alumnos';
+      await api(url, { method, body: JSON.stringify(data) });
+      event.currentTarget.reset();
+      await loadAll();
+      showMessage(isEditing ? 'Alumno actualizado correctamente.' : 'Alumno registrado correctamente.', '#appMessage', 'success');
+    } catch (err) {
+      showMessage(err.message);
+    }
   });
 
   $('#materiaForm').addEventListener('submit', async (event) => {
     event.preventDefault();
-    await api('/api/materias', { method: 'POST', body: JSON.stringify(formData(event.currentTarget)) });
-    event.currentTarget.reset();
-    await loadAll();
+    try {
+      await api('/api/materias', { method: 'POST', body: JSON.stringify(formData(event.currentTarget)) });
+      event.currentTarget.reset();
+      await loadAll();
+      showMessage('Materia registrada correctamente.', '#appMessage', 'success');
+    } catch (err) {
+      showMessage(err.message);
+    }
   });
 
   $('#inscripcionForm').addEventListener('submit', async (event) => {
     event.preventDefault();
-    await api('/api/inscripciones', { method: 'POST', body: JSON.stringify(formData(event.currentTarget)) });
-    event.currentTarget.reset();
-    await loadAll();
+    try {
+      await api('/api/inscripciones', { method: 'POST', body: JSON.stringify(formData(event.currentTarget)) });
+      event.currentTarget.reset();
+      await loadAll();
+      showMessage('Inscripcion registrada correctamente.', '#appMessage', 'success');
+    } catch (err) {
+      showMessage(err.message);
+    }
   });
 }
 
@@ -280,26 +316,56 @@ function bindActions() {
       form.elements.documento.value = alumno.DOCUMENTO;
       form.elements.email.value = alumno.EMAIL || '';
       form.elements.telefono.value = alumno.TELEFONO || '';
+      showMessage('Editando alumno. Guarda los cambios para confirmar.', '#appMessage', 'success');
     }
 
     if (target.matches('[data-delete-alumno]')) {
-      await api(`/api/alumnos/${target.dataset.deleteAlumno}`, { method: 'DELETE' });
-      await loadAll();
+      if (!confirmAction('Deseas eliminar este alumno? Tambien se eliminaran sus inscripciones.')) {
+        return;
+      }
+      try {
+        await api(`/api/alumnos/${target.dataset.deleteAlumno}`, { method: 'DELETE' });
+        await loadAll();
+        showMessage('Alumno eliminado correctamente.', '#appMessage', 'success');
+      } catch (err) {
+        showMessage(err.message);
+      }
     }
 
     if (target.matches('[data-delete-materia]')) {
-      await api(`/api/materias/${target.dataset.deleteMateria}`, { method: 'DELETE' });
-      await loadAll();
+      if (!confirmAction('Deseas eliminar esta materia? Tambien se eliminaran sus inscripciones.')) {
+        return;
+      }
+      try {
+        await api(`/api/materias/${target.dataset.deleteMateria}`, { method: 'DELETE' });
+        await loadAll();
+        showMessage('Materia eliminada correctamente.', '#appMessage', 'success');
+      } catch (err) {
+        showMessage(err.message);
+      }
     }
 
     if (target.matches('[data-delete-inscripcion]')) {
-      await api(`/api/inscripciones/${target.dataset.deleteInscripcion}`, { method: 'DELETE' });
-      await loadAll();
+      if (!confirmAction('Deseas eliminar esta inscripcion?')) {
+        return;
+      }
+      try {
+        await api(`/api/inscripciones/${target.dataset.deleteInscripcion}`, { method: 'DELETE' });
+        await loadAll();
+        showMessage('Inscripcion eliminada correctamente.', '#appMessage', 'success');
+      } catch (err) {
+        showMessage(err.message);
+      }
     }
   });
 
-  $('#refreshBtn').addEventListener('click', () => loadAll().catch((err) => showMessage(err.message)));
-  $('#logoutBtn').addEventListener('click', logout);
+  $('#refreshBtn').addEventListener('click', () => loadAll()
+    .then(() => showMessage('Datos actualizados.', '#appMessage', 'success'))
+    .catch((err) => showMessage(err.message)));
+  $('#logoutBtn').addEventListener('click', () => {
+    logout();
+    showMessage('Sesion cerrada correctamente.', '#loginMessage', 'success');
+  });
   $('#printReport').addEventListener('click', () => window.print());
   $('#downloadCsv').addEventListener('click', () => {
     window.location.href = `/api/reportes/inscripciones.csv?token=${encodeURIComponent(state.token)}`;

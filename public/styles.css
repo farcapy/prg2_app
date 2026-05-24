@@ -93,6 +93,14 @@ input, select {
   font-size: 14px;
 }
 
+.message.success {
+  color: var(--teal);
+}
+
+.message.error {
+  color: var(--coral);
+}
+
 .app-panel {
   min-height: 100vh;
   display: grid;
